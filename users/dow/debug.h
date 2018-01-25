@@ -10,19 +10,24 @@
 ////////////////////////////////////////////////////////////////////////////////
 // DEFINEs
 ////////////////////////////////////////////////////////////////////////////////
-#define WHILE_ENTER 0
-#define TASK_ENTER 1
-#define TQ_PRE_SEND 2
-#define TQ_PRE_REC 3
-#define TQ_POS_SEND 4
-#define TQ_POS_REC 5
-#define TASK_EXIT 6
-#define ISR_ENTER 7
-#define IQ_PRE_SEND 8
-#define IQ_PRE_REC 9
-#define IQ_POS_SEND 10
-#define IQ_POS_REC 11
-#define ISR_EXIT 12
+#define MAX_VAL 127
+
+#define INVALID_OUT_VAL 0
+
+#define INVALID_OUT_LOC 0
+#define WHILE_ENTER 1
+#define TASK_ENTER 2
+#define TQ_PRE_SEND 3
+#define TQ_PRE_REC 4
+#define TQ_POS_SEND 5
+#define TQ_POS_REC 6
+#define TASK_EXIT 7
+#define ISR_ENTER 8
+#define IQ_PRE_SEND 9
+#define IQ_PRE_REC 10
+#define IQ_POS_SEND 11
+#define IQ_POS_REC 12
+#define ISR_EXIT 13
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +37,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Function:    dbgOutputVal(unsigned int outVal)
 // Inputs:      Expects an outVal <= 127 that will be written to 7 pins of an 
-// IO port(PORTXXXX)
+// IO port(PORTB)
 // Outputs:     Not applicable
 // Description: Generates an output value on an IO port for debugging purposes.
 // Can be called from anywhere within our code.
@@ -53,7 +58,7 @@ void dbgUARTVal(unsigned char outVal);
 ////////////////////////////////////////////////////////////////////////////////
 // Function:    dbgOutputLoc(unsigned int outVal)
 // Inputs:      Expects an outVal <= 127 that will be written to 7 pins of an 
-// IO port(PORTXXXY) -- a different port than dbgOutputVal
+// IO port(PORTE) -- a different port than dbgOutputVal
 // Outputs:     Not applicable
 // Description: Generates an output value on an IO port for debugging purposes.
 // Can be called from anywhere within our code. Input values must be defined
@@ -68,8 +73,8 @@ void dbgOutputLoc(unsigned int outVal);
 // functions.
 // Outputs:     Not applicable
 // Description: Can be called from anywhere within our code. Stops execution for
-// entire program and blinks an LED (LEDX). Additionally, calls dbgOutputLoc for
-// directed debugging.
+// entire program and blinks an LED (PORTA - RA9). Additionally, calls 
+//dbgOutputLoc for directed debugging.
 ////////////////////////////////////////////////////////////////////////////////
 
 void dbgStopAll(unsigned int outVal);
