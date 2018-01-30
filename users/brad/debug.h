@@ -28,7 +28,10 @@
 #define IQ_POS_SEND 11
 #define IQ_POS_REC 12
 #define ISR_EXIT 13
-
+#define QUEUE_INIT 14
+#define TASK_INIT 15
+#define QUEUE_SEND_FAILURE 16
+#define FAILURE 126
 
 ////////////////////////////////////////////////////////////////////////////////
 // FUNCTIONs

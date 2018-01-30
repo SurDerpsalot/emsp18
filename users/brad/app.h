@@ -58,8 +58,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <stdlib.h>
 #include "system_config.h"
 #include "system_definitions.h"
-#include "queue.h"
-QueueHandle_t *messageQueue;
+#include "debug.h"
+#include "sensor_queue.h"
+QueueHandle_t messageQueue;
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -108,17 +109,6 @@ typedef enum
   Remarks:
     Application strings and buffers are be defined outside this structure.
  */
-
-typedef struct
-{
-    /* The application's current state */
-    APP_STATES state;
-
-    /* TODO: Define any additional data used by the application. */
-
-} APP_DATA;
-
-
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Routines
@@ -211,4 +201,4 @@ void APP_Tasks( void );
 /*******************************************************************************
  End of File
  */
-
+void adcTryAndRead();

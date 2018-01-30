@@ -8,6 +8,10 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
+/* Define the queue parameters. */
+#define QUEUE_LENGTH 5
+#define QUEUE_ITEM_SIZE sizeof( unsigned int )
+
 ////////////////////////////////////////////////////////////////////////////////
 // DEFINEs
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +30,7 @@
 // Description: Creates a FreeRTOS queue using the API functions provided.
 ////////////////////////////////////////////////////////////////////////////////
 
-int queueInit(QueueHandle_t * handle, int queueSize, int itemSize);
+int queueInit(QueueHandle_t * handle, UBaseType_t queueSize, UBaseType_t itemSize);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Function:    queueSend(QueueHandle_t queue, unsigned int * itemSent)
@@ -36,8 +40,7 @@ int queueInit(QueueHandle_t * handle, int queueSize, int itemSize);
 // provided.
 ////////////////////////////////////////////////////////////////////////////////
 
-int queueSend(QueueHandle_t queue, unsigned int * itemSent);
-
+int queueSend(QueueHandle_t queue, unsigned int  itemSent, BaseType_t * check);
 ////////////////////////////////////////////////////////////////////////////////
 // Function:    queueReceive(QueueHandle_t queue, unsigned int * itemRec)
 // Inputs:      Expects the handle of the queue to receive from and a pointer to
