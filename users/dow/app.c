@@ -54,12 +54,30 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 
 #include "app.h"
+#include "sensor_queue.h"
 
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
 // *****************************************************************************
 // *****************************************************************************
+
+// *****************************************************************************
+/* Application Data
+
+  Summary:
+    Holds application data
+
+  Description:
+    This structure holds the application's data.
+
+  Remarks:
+    This structure should be initialized by the APP_Initialize function.
+    
+    Application strings and buffers are be defined outside this structure.
+*/
+
+APP_DATA appData;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -93,10 +111,15 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
   Remarks:
     See prototype in app.h.
- */
+ */   
 
 void APP_Initialize ( void )
 {
+    /* Place the App state machine in its initial state. */
+    appData.state = APP_STATE_INIT;
+    queueInit(messageQueue, 4 , 8 );
+
+    
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
@@ -113,7 +136,8 @@ void APP_Initialize ( void )
 
 void APP_Tasks ( void )
 {
-    //
+    PLIB_PORTS_Toggle(PORTS_ID_0, PORT_CHANNEL_A, 0x0200);
+
 }
 
  

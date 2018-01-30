@@ -29,14 +29,14 @@
 int queueInit(QueueHandle_t * handle, int queueSize, int itemSize);
 
 ////////////////////////////////////////////////////////////////////////////////
-// Function:    queueSend(QueueHandle_t queue, unsigned int itemSent)
+// Function:    queueSend(QueueHandle_t queue, unsigned int * itemSent)
 // Inputs:      Expects handle to queue to send to, and the item to send
 // Outputs:     Integer containing error value. 0 on success.
 // Description: Sends a value to the FreeRTOS queue using the API functions
 // provided.
 ////////////////////////////////////////////////////////////////////////////////
 
-int queueSend(QueueHandle_t queue, unsigned int itemSent);
+int queueSend(QueueHandle_t queue, unsigned int * itemSent);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Function:    queueReceive(QueueHandle_t queue, unsigned int * itemRec)

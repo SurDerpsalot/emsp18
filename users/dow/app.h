@@ -58,7 +58,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <stdlib.h>
 #include "system_config.h"
 #include "system_definitions.h"
-
+#include "queue.h"
+QueueHandle_t *messageQueue;
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -93,6 +94,29 @@ typedef enum
 	/* TODO: Define states used by the application state machine. */
 
 } APP_STATES;
+
+
+// *****************************************************************************
+/* Application Data
+
+  Summary:
+    Holds application data
+
+  Description:
+    This structure holds the application's data.
+
+  Remarks:
+    Application strings and buffers are be defined outside this structure.
+ */
+
+typedef struct
+{
+    /* The application's current state */
+    APP_STATES state;
+
+    /* TODO: Define any additional data used by the application. */
+
+} APP_DATA;
 
 
 // *****************************************************************************
