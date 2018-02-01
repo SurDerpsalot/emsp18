@@ -54,7 +54,6 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 
 #include "app.h"
-#include "sensor_queue.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -77,7 +76,6 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
     Application strings and buffers are be defined outside this structure.
 */
 
-APP_DATA appData;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -111,15 +109,22 @@ APP_DATA appData;
 
   Remarks:
     See prototype in app.h.
- */   
+ */
 
 void APP_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
-    appData.state = APP_STATE_INIT;
-    queueInit(messageQueue, 4 , 8 );
-
     
+    UBaseType_t qSize = 4;
+    UBaseType_t qLength = 2;
+    if(queueInit(&messageQueue, QUEUE_LENGTH, QUEUE_ITEM_SIZE))
+    {
+        dbgStopAll(QUEUE_INIT);
+    }
+    DRV_TMR0_Start();
+    DRV_ADC_Start();
+    dbgOutputLoc(TASK_INIT);
+       
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
@@ -136,11 +141,38 @@ void APP_Initialize ( void )
 
 void APP_Tasks ( void )
 {
-    PLIB_PORTS_Toggle(PORTS_ID_0, PORT_CHANNEL_A, 0x0200);
-
+        dbgOutputLoc(TASK_ENTER);
+        unsigned int value;
+        while(1){
+            dbgOutputLoc(WHILE_ENTER);
+            //dbgOutputLoc(TQ_PRE_REC);
+            /*if(!queueReceive(messageQueue, &value)){
+              dbgStopAll(TQ_POS_REC);
+            }*/
+            //dbgOutputLoc(TQ_POS_REC);
+            //sensorAvgFSM(value);
+            //end
+        }
+        
+   //     dbgOutputLoc(TASK_EXIT);
+    
+    
+    /* Check the application's current state. */
+    
 }
 
- 
+ void adcTryAndRead()
+ {
+  int i = 0;
+  int numSamples = 16;
+  
+  DRV_ADC_Stop();
+  for(i=0;i<numSamples;i+=numSamples)
+  {
+      
+  }
+      
+ }
 
 /*******************************************************************************
  End of File
