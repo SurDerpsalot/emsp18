@@ -86,6 +86,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 /* TODO:  Add any necessary callback functions.
 */
 
+
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Local Functions
@@ -111,23 +113,31 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
     See prototype in app.h.
  */
 
+//DRV_HANDLE myHandle;
+
 void APP_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
     
-    UBaseType_t qSize = 4;
-    UBaseType_t qLength = 2;
-    if(queueInit(&messageQueue, QUEUE_LENGTH, QUEUE_ITEM_SIZE))
-    {
-        dbgStopAll(QUEUE_INIT);
-    }
+    //UBaseType_t qSize = 4;
+    //UBaseType_t qLength = 2;
+    //if(queueInit(&messageQueue, QUEUE_LENGTH, QUEUE_ITEM_SIZE))
+    //{
+        //dbgStopAll(QUEUE_INIT);
+    //}
+    PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_TIMER_3);
     DRV_TMR0_Start();
+    
+    DRV_ADC_Open();
     DRV_ADC_Start();
-    dbgOutputLoc(TASK_INIT);
+    //dbgOutputLoc(TASK_INIT);
        
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
+    
+    //myHandle = DRV_USART0_Open(0, DRV_IO_INTENT_WRITE);
+    
 }
 
 
@@ -141,10 +151,27 @@ void APP_Initialize ( void )
 
 void APP_Tasks ( void )
 {
-        dbgOutputLoc(TASK_ENTER);
-        unsigned int value;
-        while(1){
-            dbgOutputLoc(WHILE_ENTER);
+    char myByte = 'c';
+    //while(1){
+        
+   if(!(DRV_USART_TRANSFER_STATUS_TRANSMIT_FULL & DRV_USART0_TransferStatus()) ){
+        DRV_USART0_WriteByte(myByte);  // send modified byte
+   }
+    //}
+    
+    //PLIB_PORTS_Clear(PORTS_ID_0, PORT_CHANNEL_E, 0xFF);
+        //dbgOutputLoc(TASK_ENTER);
+        //unsigned int value;
+    
+    //if(DRV_TMR0_Start()){
+        //dbgOutputLoc(ISR_ENTER);
+    //}
+    //else{
+        //dbgOutputLoc(INVALID_OUT_LOC);
+    //}
+        
+        //while(1){
+            //dbgOutputLoc(INVALID_OUT_LOC);
             //dbgOutputLoc(TQ_PRE_REC);
             /*if(!queueReceive(messageQueue, &value)){
               dbgStopAll(TQ_POS_REC);
@@ -152,7 +179,7 @@ void APP_Tasks ( void )
             //dbgOutputLoc(TQ_POS_REC);
             //sensorAvgFSM(value);
             //end
-        }
+        //}
         
    //     dbgOutputLoc(TASK_EXIT);
     
