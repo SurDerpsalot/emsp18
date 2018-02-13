@@ -68,32 +68,62 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: System Interrupt Vector Functions
 // *****************************************************************************
 // *****************************************************************************
+USART_STATE uState = USART_WAIT;
+
+void IntHandlerDrvUsartInstance0(void)
+{
+    //if transmit buffer full...
+        //write (blocking) -- get from Queue
+    //if rx buffer not empty...
+        //read (non-blocking) -- put in Queue
+    //DRV_USART_TasksTransmit(sysObj.drvUsart0);
+    //DRV_USART_TasksError(sysObj.drvUsart0);
+    //DRV_USART_TasksReceive(sysObj.drvUsart0);
+    
+    if(PLIB_INT_SourceFlagGet(INT_ID_0, INT_SOURCE_USART_1_TRANSMIT)){
+        switch(uState){
+                case USART_WAIT:
+                    writeString(BEGIN);
+                    uState = USART_MSG0;
+                    break;
+                case USART_MSG0:
+                    writeString("\nhello\n");
+                    uState = USART_MSG1;
+                    break;
+                case USART_MSG1:
+                    writeString("bye\n");
+                    uState = USART_MSG2;
+                    break;
+                case USART_MSG2:
+                    writeString(END);
+                    uState = LIMBO;
+                    break;
+                case LIMBO:
+                    uState = LIMBO;
+                    break;
+                default:
+                    //
+                    break;
+            }
+        PLIB_INT_SourceFlagClear(INT_ID_0, INT_SOURCE_USART_1_TRANSMIT);
+        SYS_INT_SourceStatusClear(INT_SOURCE_USART_1_TRANSMIT);
+    }
+}
+ 
+ 
  
 
-void IntHandlerDrvTmrInstance0(void)
-{
-    
-    //dbgOutputLoc(ISR_ENTER);
-    BaseType_t pxHigherPriorityTaskWoken=pdFALSE;
-    BaseType_t forSend=pdTRUE;
-    unsigned int sender;
-    //PLIB_PORTS_Set(PORTS_ID_0, PORT_CHANNEL_E,0xff ,0xff);
-    PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_3);
-    dbgOutputVal(FAILURE);
-    //if(PLIB_INT_SourceFlagGet(INT_ID_0,INT_SOURCE_ADC_1)){
-        sender = DRV_ADC_SamplesRead(1);
-        dbgOutputLoc(IQ_PRE_SEND);
-        queueSend(messageQueue, sender, & forSend);
-        dbgOutputLoc(IQ_POS_SEND);
-        PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_ADC_1);
-    //}
-    // This must be the last thing that is 
-    //  done in the ISR
-    dbgOutputVal(ISR_EXIT);
-    portEND_SWITCHING_ISR(pxHigherPriorityTaskWoken);
-    
-    
-}
- /*******************************************************************************
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+/*******************************************************************************
  End of File
 */

@@ -61,22 +61,16 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
-// *****************************************************************************
-/* Application Data
+JSON json1;
+JSON json2;
 
-  Summary:
-    Holds application data
+MSG_TYPE msg1;
+MSG_TYPE msg2;
 
-  Description:
-    This structure holds the application's data.
+//extern USART_STATE uState;
 
-  Remarks:
-    This structure should be initialized by the APP_Initialize function.
-    
-    Application strings and buffers are be defined outside this structure.
-*/
-
-
+QueueHandle_t transmitQueue;
+//QueueHandle_t receiveQueue;
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Functions
@@ -85,8 +79,6 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 /* TODO:  Add any necessary callback functions.
 */
-
-
 
 // *****************************************************************************
 // *****************************************************************************
@@ -113,31 +105,26 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
     See prototype in app.h.
  */
 
-//DRV_HANDLE myHandle;
-
 void APP_Initialize ( void )
 {
+    transmitQueue = xQueueCreate(2, 4);
+    PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_USART_1_TRANSMIT);
+    PLIB_USART_Enable(USART_ID_1);
+    PLIB_USART_TransmitterEnable(USART_ID_1);
+    
     /* Place the App state machine in its initial state. */
+    //
+    jsonInit(&json1, "key1", "data1");
+    jsonInit(&json2, "key2", "data2");
     
-    //UBaseType_t qSize = 4;
-    //UBaseType_t qLength = 2;
-    //if(queueInit(&messageQueue, QUEUE_LENGTH, QUEUE_ITEM_SIZE))
-    //{
-        //dbgStopAll(QUEUE_INIT);
-    //}
-    PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_TIMER_3);
-    DRV_TMR0_Start();
+    PLIB_USART_TransmitterBreakSend(USART_ID_1);
+    PLIB_USART_TransmitterBreakSend(USART_ID_1);
+    //uState = USART_WAIT;
+
     
-    DRV_ADC_Open();
-    DRV_ADC_Start();
-    //dbgOutputLoc(TASK_INIT);
-       
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
-    
-    //myHandle = DRV_USART0_Open(0, DRV_IO_INTENT_WRITE);
-    
 }
 
 
@@ -151,56 +138,56 @@ void APP_Initialize ( void )
 
 void APP_Tasks ( void )
 {
-    char myByte = 'c';
-    //while(1){
-        
-   if(!(DRV_USART_TRANSFER_STATUS_TRANSMIT_FULL & DRV_USART0_TransferStatus()) ){
-        DRV_USART0_WriteByte(myByte);  // send modified byte
-   }
-    //}
-    
-    //PLIB_PORTS_Clear(PORTS_ID_0, PORT_CHANNEL_E, 0xFF);
-        //dbgOutputLoc(TASK_ENTER);
-        //unsigned int value;
-    
-    //if(DRV_TMR0_Start()){
-        //dbgOutputLoc(ISR_ENTER);
-    //}
-    //else{
-        //dbgOutputLoc(INVALID_OUT_LOC);
-    //}
-        
-        //while(1){
-            //dbgOutputLoc(INVALID_OUT_LOC);
-            //dbgOutputLoc(TQ_PRE_REC);
-            /*if(!queueReceive(messageQueue, &value)){
-              dbgStopAll(TQ_POS_REC);
-            }*/
-            //dbgOutputLoc(TQ_POS_REC);
-            //sensorAvgFSM(value);
-            //end
-        //}
-        
-   //     dbgOutputLoc(TASK_EXIT);
-    
-    
     /* Check the application's current state. */
+    while(1){
+        
+    }
     
 }
 
- void adcTryAndRead()
- {
-  int i = 0;
-  int numSamples = 16;
-  
-  DRV_ADC_Stop();
-  for(i=0;i<numSamples;i+=numSamples)
-  {
-      
-  }
-      
- }
+void writeString(char * str){
+    int i;
+    for(i = 0; i < strlen(str); i++){
+        if(!PLIB_USART_TransmitterBufferIsFull(USART_ID_1)){
+            PLIB_USART_TransmitterByteSend(USART_ID_1, str[i]);
+        }
+    }
+}
 
+void writeJson(JSON msg){
+    int i, j;
+    if(!PLIB_USART_TransmitterBufferIsFull(USART_ID_1)){
+        PLIB_USART_TransmitterByteSend(USART_ID_1, msg.open[0]);
+    }
+    
+    for(i = 0; i < strlen(msg.key); i++){
+        if(!PLIB_USART_TransmitterBufferIsFull(USART_ID_1)){
+            PLIB_USART_TransmitterByteSend(USART_ID_1, msg.key[i]);
+        }
+    }
+    
+    if(!PLIB_USART_TransmitterBufferIsFull(USART_ID_1)){
+        PLIB_USART_TransmitterByteSend(USART_ID_1, msg.sep[0]);
+    }
+    
+    for(j = 0; j < strlen(msg.data); j++){
+        if(!PLIB_USART_TransmitterBufferIsFull(USART_ID_1)){
+            PLIB_USART_TransmitterByteSend(USART_ID_1, msg.data[j]);
+        }
+    }
+    
+    if(!PLIB_USART_TransmitterBufferIsFull(USART_ID_1)){
+        PLIB_USART_TransmitterByteSend(USART_ID_1, msg.close[0]);
+    }
+}
+
+void jsonInit(JSON * msg, char * key, char * data){
+    msg->open = OPEN;
+    msg->close = CLOSE;
+    msg->sep = SEP;
+    msg->key = key;
+    msg->data = data;
+}
 /*******************************************************************************
  End of File
  */

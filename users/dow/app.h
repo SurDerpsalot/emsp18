@@ -58,9 +58,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <stdlib.h>
 #include "system_config.h"
 #include "system_definitions.h"
-#include "debug.h"
-#include "sensor_queue.h"
-QueueHandle_t messageQueue;
+#include "queue.h"
+
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -75,40 +74,28 @@ extern "C" {
 // *****************************************************************************
 // *****************************************************************************
 
-// *****************************************************************************
-/* Application states
+typedef enum {USART_WAIT, USART_MSG0, USART_MSG1, USART_MSG2, LIMBO} USART_STATE;
+#define BEGIN "*begin*"
+#define END "*end*"
+#define OPEN "{"
+#define CLOSE "}"
+#define SEP ":"
 
-  Summary:
-    Application states enumeration
+typedef struct {
+    char * open;
+    char * close;
+    char * sep;
+    char * key;
+    char * data;
+} JSON;
 
-  Description:
-    This enumeration defines the valid application states.  These states
-    determine the behavior of the application at various times.
-*/
-
-typedef enum
-{
-	/* Application's state machine's initial state. */
-	APP_STATE_INIT=0,
-	APP_STATE_SERVICE_TASKS,
-
-	/* TODO: Define states used by the application state machine. */
-
-} APP_STATES;
-
-
-// *****************************************************************************
-/* Application Data
-
-  Summary:
-    Holds application data
-
-  Description:
-    This structure holds the application's data.
-
-  Remarks:
-    Application strings and buffers are be defined outside this structure.
- */
+typedef struct {
+    char * open;
+    //int check;
+    //int seq;
+    JSON * json;
+    char * close;
+} MSG_TYPE;
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Routines
@@ -189,6 +176,11 @@ void APP_Initialize ( void );
 
 void APP_Tasks( void );
 
+void writeString(char * str);
+void writeJson(JSON msg);
+void jsonInit(JSON * msg, char * key, char * data);
+//void msgInit(MSG_TYPE * msg);
+
 
 #endif /* _APP_H */
 
@@ -201,4 +193,4 @@ void APP_Tasks( void );
 /*******************************************************************************
  End of File
  */
-void adcTryAndRead();
+
