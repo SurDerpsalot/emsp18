@@ -68,32 +68,27 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: System Interrupt Vector Functions
 // *****************************************************************************
 // *****************************************************************************
+
  
 
 void IntHandlerDrvTmrInstance0(void)
 {
-    
-    //dbgOutputLoc(ISR_ENTER);
-    BaseType_t pxHigherPriorityTaskWoken=pdFALSE;
-    BaseType_t forSend=pdTRUE;
-    unsigned int sender;
-    //PLIB_PORTS_Set(PORTS_ID_0, PORT_CHANNEL_E,0xff ,0xff);
-    PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_3);
-    dbgOutputVal(FAILURE);
-    //if(PLIB_INT_SourceFlagGet(INT_ID_0,INT_SOURCE_ADC_1)){
-        sender = DRV_ADC_SamplesRead(1);
-        dbgOutputLoc(IQ_PRE_SEND);
-        queueSend(messageQueue, sender, & forSend);
-        dbgOutputLoc(IQ_POS_SEND);
-        PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_ADC_1);
-    //}
-    // This must be the last thing that is 
-    //  done in the ISR
-    dbgOutputVal(ISR_EXIT);
-    portEND_SWITCHING_ISR(pxHigherPriorityTaskWoken);
-    
-    
+    PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_2);
 }
- /*******************************************************************************
+void IntHandlerDrvTmrInstance1(void)
+{
+    PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_4);
+}
+void IntHandlerDrvTmrInstance2(void)
+{
+    PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_5);
+}
+void IntHandlerDrvTmrInstance3(void)
+{
+    PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_3);
+    getEData();
+}
+ 
+/*******************************************************************************
  End of File
 */

@@ -8,36 +8,37 @@
 
 #include "sensor_state.h"
 
-void sensorAvgFSM(unsigned int inVal){
+unsigned int sensorAvgFSM(unsigned int inVal, unsigned int inVal2){
     static ACQ_STATE state = ACQ1;
-    static unsigned int value = 0;
-    
+    unsigned int value = 0;
     switch(state){
         case ACQ1:
-            value = inVal;
-            dbgOutputVal(inVal);
+            value = 40;
+            //dbgOutputVal(inVal);
+            //dbgOutputLoc(inVal2);
             state = ACQ2;
             break;
         case ACQ2:
-            value = value + inVal;
-            dbgOutputVal(inVal);
+            value = 60;
+          //  dbgOutputVal(inVal);
+            //dbgOutputLoc(inVal2);
             state = ACQ3;
             break;
         case ACQ3:
-            value = value + inVal;
-            dbgOutputVal(inVal);
+            value = 80;
+           // dbgOutputVal(inVal);
+            //dbgOutputLoc(inVal2);
             state = ACQ4;
             break;
         case ACQ4:
-            value = value + inVal;
-            value = value / 4;
-            dbgOutputVal(inVal);
-            dbgUARTVal((unsigned char)value);
-            value = 0;
+            value = 100;
+            //dbgOutputVal(inVal);
+            //dbgOutputLoc(inVal2);
             state = ACQ1;
             break;
         default:
             dbgStopAll(1); //change hardcode to output LOC macro
             break;
     }
+    return value;
 }

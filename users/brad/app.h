@@ -46,6 +46,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #ifndef _APP_H
 #define _APP_H
 
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Included Files
@@ -58,9 +59,11 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <stdlib.h>
 #include "system_config.h"
 #include "system_definitions.h"
+#include "peripheral/oc/plib_oc.h"
 #include "debug.h"
 #include "sensor_queue.h"
 QueueHandle_t messageQueue;
+
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -83,32 +86,9 @@ extern "C" {
 
   Description:
     This enumeration defines the valid application states.  These states
-    determine the behavior of the application at various times.
-*/
-
-typedef enum
-{
-	/* Application's state machine's initial state. */
-	APP_STATE_INIT=0,
-	APP_STATE_SERVICE_TASKS,
-
-	/* TODO: Define states used by the application state machine. */
-
-} APP_STATES;
+    determine the behavior of the application at various times.*/
 
 
-// *****************************************************************************
-/* Application Data
-
-  Summary:
-    Holds application data
-
-  Description:
-    This structure holds the application's data.
-
-  Remarks:
-    Application strings and buffers are be defined outside this structure.
- */
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Routines
@@ -190,6 +170,147 @@ void APP_Initialize ( void );
 void APP_Tasks( void );
 
 
+
+void directionForward(){
+    PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_14);
+    PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_G, PORTS_BIT_POS_1);
+}
+void directionBackward(){
+    PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_14);
+    PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_G, PORTS_BIT_POS_1);
+}
+void directionRight(){
+    PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_14);
+    PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_G, PORTS_BIT_POS_1);
+}
+void directionLeft(){
+    PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_14);
+    PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_G, PORTS_BIT_POS_1);
+}
+
+void setMotor(int fast, int direction, int motor) {
+    if(fast <101){
+        fast = speedMapping(fast);
+    }
+    else
+    {
+        //return error
+        fast = 10;
+    }
+    if(motor == 1){
+        DRV_OC1_PulseWidthSet(fast);
+    }
+    else{
+        DRV_OC0_PulseWidthSet(fast);
+    }
+    if(motor == 1)
+    {
+         if(direction ==1)
+        {
+            PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_14);
+        }
+        else{
+            PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_14);
+        }
+    }
+    else{
+        if(direction ==1)
+        {
+            PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_G, PORTS_BIT_POS_1);
+        }
+        else{
+            PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_G, PORTS_BIT_POS_1);
+        }
+    }
+}
+
+//insert table
+int speedMapping(int fast){
+    if(fast == 100){
+       return 799;
+    }
+    else if(fast == 90) {
+        return 740;
+    }
+    else if(fast == 80) {
+        return 720 ;
+    }
+    else if(fast == 70) {
+        return 700;
+    }
+    else if(fast == 60) {
+        return 680;
+    }
+    else if(fast == 50) {
+        return 660;
+    }
+    else if(fast == 40) {
+        return 640;
+    }
+    else if(fast == 30) {
+        return 620 ;
+    }
+    else if(fast == 20) {
+        return 580;
+    }
+    else if(fast == 10) {
+        return 520;
+    }   
+    else
+    {
+        return 500;
+    }
+}
+
+void getEData(){
+    
+    //this should give rotations per second, however since it is being put into
+    //an int, this should be 0. at speed 100, encoders should have .7 from this
+    //math, which would show up as a 0.
+    int value1 = (DRV_TMR1_CounterValueGet()/297/12/0.01);
+    int value2 = (DRV_TMR2_CounterValueGet()/297/12/0.01);
+    
+    //This trys to pretty much just do an absolute value if its ever needed.
+    if (value1 < 0){
+        value1 = value1 *-1;
+    }
+    if (value2 < 0){
+        value2 = value2 *-1;
+    }
+    
+   // struct Encoders EValues;
+   // EValues.encoder1 = value1;
+    if(value1 > 127)
+    {
+        dbgOutputLoc(16);
+    }
+    else if(value2 > 127)
+    {
+        dbgOutputLoc(17);
+    }
+    else if(value1 == 0)
+    {
+        dbgOutputLoc(18);
+    }
+    else if(value2 == 0){
+        dbgOutputLoc(19);
+    }
+    else{
+    dbgOutputLoc(5);
+    dbgOutputLoc(value1);
+    dbgOutputLoc(15);
+    dbgOutputLoc(value2);
+    dbgOutputLoc(5);
+    }
+    
+    DRV_TMR1_CounterClear();
+    DRV_TMR2_CounterClear();
+   // EValues.encoder2 = value2;
+   // BaseType_t pxHigherPriorityTaskWoken=pdFALSE;
+   // queueSend(messageQueue, EValues, &pxHigherPriorityTaskWoken);
+}
+
+
 #endif /* _APP_H */
 
 //DOM-IGNORE-BEGIN
@@ -201,4 +322,4 @@ void APP_Tasks( void );
 /*******************************************************************************
  End of File
  */
-void adcTryAndRead();
+

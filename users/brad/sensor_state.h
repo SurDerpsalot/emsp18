@@ -24,4 +24,4 @@ typedef enum {ACQ1, ACQ2, ACQ3, ACQ4} ACQ_STATE;
 // Description: Implements the state machine as described for Milestone One
 ////////////////////////////////////////////////////////////////////////////////
 
-void sensorAvgFSM(unsigned int inVal);
+unsigned int sensorAvgFSM(unsigned int inVal, unsigned int inVal2);

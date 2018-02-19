@@ -30,8 +30,16 @@
 #define ISR_EXIT 13
 #define QUEUE_INIT 14
 #define TASK_INIT 15
-#define QUEUE_SEND_FAILURE 16
+#define QUEUE_SEND_ENTER 16
+#define QUEUE_SEND_EXIT 17
+#define QUEUE_RECEIVE_ENTER 18
+#define QUEUE_RECEIVE_EXIT 19
 #define FAILURE 126
+#define testyboi 100
+#define STATE_1 20
+#define STATE_2 21
+#define STATE_3 22
+#define STATE_4 23
 
 ////////////////////////////////////////////////////////////////////////////////
 // FUNCTIONs

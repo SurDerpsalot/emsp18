@@ -113,21 +113,15 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 void APP_Initialize ( void )
 {
-    /* Place the App state machine in its initial state. */
-    
-    UBaseType_t qSize = 4;
-    UBaseType_t qLength = 2;
-    if(queueInit(&messageQueue, QUEUE_LENGTH, QUEUE_ITEM_SIZE))
+    UBaseType_t qSize = 1;
+    UBaseType_t qLength = 20;
+    messageQueue = queueInit(qSize, qLength);
+    if(messageQueue == NULL)
     {
         dbgStopAll(QUEUE_INIT);
     }
-    DRV_TMR0_Start();
-    DRV_ADC_Start();
-    dbgOutputLoc(TASK_INIT);
-       
-    /* TODO: Initialize your application's state machine and other
-     * parameters.
-     */
+   DRV_OC0_PulseWidthSet(480);
+   DRV_OC1_PulseWidthSet(480);
 }
 
 
@@ -138,41 +132,67 @@ void APP_Initialize ( void )
   Remarks:
     See prototype in app.h.
  */
-
+int i=0;
 void APP_Tasks ( void )
 {
-        dbgOutputLoc(TASK_ENTER);
-        unsigned int value;
-        while(1){
-            dbgOutputLoc(WHILE_ENTER);
-            //dbgOutputLoc(TQ_PRE_REC);
-            /*if(!queueReceive(messageQueue, &value)){
-              dbgStopAll(TQ_POS_REC);
-            }*/
-            //dbgOutputLoc(TQ_POS_REC);
-            //sensorAvgFSM(value);
-            //end
+    //799 is top
+    //
+    //460 is 10%
+   unsigned int motorSpeed = 50;
+   struct Encoders Values;
+   unsigned int rps1= 0;
+   unsigned int rps2=0;
+   while(1) {
+   
+     /*if(uxQueueMessagesWaiting( messageQueue )){
+         queueReceive(messageQueue, &Values);
+         rps1 = Values.encoder1;
+         rps2 = Values.encoder2;
+         dbgOutputLoc(5);
+         dbgOutputLoc(rps1);
+         dbgOutputLoc(15);
+         dbgOutputLoc(rps2);
+         dbgOutputLoc(5);
+     }*/
+       
+     if(i < 1500000){
+        i++;
+    }
+    else if(i < 3000000 && i > 1499999){
+        i++;
+        setMotor(motorSpeed,0,1);
+        setMotor(motorSpeed,0,0);
+    }
+    else if(i < 4500000 && i > 2999999){
+        i++;
+        setMotor((motorSpeed+20),1,1);
+        setMotor((motorSpeed+20),1,0);
+    }
+    else if(i < 6000000 && i > 4499999){
+        i++;
+        setMotor((motorSpeed),0,1);
+        setMotor((motorSpeed),1,0);
+    }
+    else if(i < 7500000 && i > 5999999){
+        i++;
+        setMotor((motorSpeed+20),1,1);
+        setMotor((motorSpeed+20),0,0);
+    }
+    else{
+        motorSpeed = motorSpeed + 30;
+        if(motorSpeed == 80){
+           dbgOutputLoc(100);
+       }
+        if(motorSpeed == 110){
+            motorSpeed = 50;
         }
-        
-   //     dbgOutputLoc(TASK_EXIT);
-    
-    
-    /* Check the application's current state. */
-    
+        i = 0;
+    }
+     
+   }
 }
 
- void adcTryAndRead()
- {
-  int i = 0;
-  int numSamples = 16;
-  
-  DRV_ADC_Stop();
-  for(i=0;i<numSamples;i+=numSamples)
-  {
-      
-  }
-      
- }
+ 
 
 /*******************************************************************************
  End of File

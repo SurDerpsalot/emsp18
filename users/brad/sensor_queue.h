@@ -7,9 +7,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "FreeRTOS.h"
 #include "queue.h"
-
+struct Encoders{
+    unsigned int encoder1;
+    unsigned int encoder2;
+};
 /* Define the queue parameters. */
-#define QUEUE_LENGTH 5
+#define QUEUE_LENGTH 16
 #define QUEUE_ITEM_SIZE sizeof( unsigned int )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +33,7 @@
 // Description: Creates a FreeRTOS queue using the API functions provided.
 ////////////////////////////////////////////////////////////////////////////////
 
-int queueInit(QueueHandle_t * handle, UBaseType_t queueSize, UBaseType_t itemSize);
+QueueHandle_t queueInit(UBaseType_t queueSize, UBaseType_t itemSize);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Function:    queueSend(QueueHandle_t queue, unsigned int * itemSent)
@@ -40,7 +43,7 @@ int queueInit(QueueHandle_t * handle, UBaseType_t queueSize, UBaseType_t itemSiz
 // provided.
 ////////////////////////////////////////////////////////////////////////////////
 
-int queueSend(QueueHandle_t queue, unsigned int  itemSent, BaseType_t * check);
+int queueSend(QueueHandle_t queue, struct Encoders  itemSent, BaseType_t * check);
 ////////////////////////////////////////////////////////////////////////////////
 // Function:    queueReceive(QueueHandle_t queue, unsigned int * itemRec)
 // Inputs:      Expects the handle of the queue to receive from and a pointer to
@@ -50,7 +53,7 @@ int queueSend(QueueHandle_t queue, unsigned int  itemSent, BaseType_t * check);
 // provided.
 ////////////////////////////////////////////////////////////////////////////////
 
-int queueReceive(QueueHandle_t queue, unsigned int * itemRec);
+int queueReceive(QueueHandle_t queue, struct Encoders * itemRec);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Function:    queueDestroy(QueueHandle_t queue);
