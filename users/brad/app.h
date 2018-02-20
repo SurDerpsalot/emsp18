@@ -64,6 +64,20 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "sensor_queue.h"
 QueueHandle_t messageQueue;
 
+
+typedef enum {ROVER_FORWARD, ROVER_BACKWARD, ROVER_RIGHT, ROVER_LEFT, ROVER_HOLD} state;
+typedef struct motorStates motorStates;
+struct motorStates {
+    int current_State;
+    int current_Speed_M1;
+    int current_Speed_M2;
+    int current_Direction_M1;
+    int current_Direction_M2;
+    int counter;
+};
+
+motorStates mStates;
+
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -169,8 +183,6 @@ void APP_Initialize ( void );
 
 void APP_Tasks( void );
 
-
-
 void directionForward(){
     PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_14);
     PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_G, PORTS_BIT_POS_1);
@@ -188,7 +200,7 @@ void directionLeft(){
     PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_G, PORTS_BIT_POS_1);
 }
 
-void setMotor(int fast, int direction, int motor) {
+void setMotor(int fast, int motor) {
     if(fast <101){
         fast = speedMapping(fast);
     }
@@ -199,66 +211,53 @@ void setMotor(int fast, int direction, int motor) {
     }
     if(motor == 1){
         DRV_OC1_PulseWidthSet(fast);
-    }
-    else{
-        DRV_OC0_PulseWidthSet(fast);
-    }
-    if(motor == 1)
-    {
-         if(direction ==1)
+       /* if(direction ==1)
         {
             PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_14);
         }
         else{
             PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_14);
-        }
+        }*/
     }
     else{
-        if(direction ==1)
+        DRV_OC0_PulseWidthSet(fast);
+        /*if(direction ==1)
         {
             PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_G, PORTS_BIT_POS_1);
         }
         else{
             PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_G, PORTS_BIT_POS_1);
-        }
+        }*/
     }
 }
 
 //insert table
 int speedMapping(int fast){
-    if(fast == 100){
-       return 799;
-    }
-    else if(fast == 90) {
-        return 740;
-    }
-    else if(fast == 80) {
-        return 720 ;
-    }
-    else if(fast == 70) {
-        return 700;
-    }
-    else if(fast == 60) {
-        return 680;
-    }
-    else if(fast == 50) {
-        return 660;
-    }
-    else if(fast == 40) {
-        return 640;
-    }
-    else if(fast == 30) {
-        return 620 ;
-    }
-    else if(fast == 20) {
-        return 580;
-    }
-    else if(fast == 10) {
-        return 520;
-    }   
-    else
-    {
-        return 500;
+    switch(fast){
+        case 100:
+            return 799;
+        case 90:
+            return 740;
+        case 80:
+            return 720;
+        case 70:
+            return 700;
+        case 60:
+            return 680;
+        case 50:
+            return 660;
+        case 40:
+            return 640;
+        case 30:
+            return 620;
+        case 20:
+            return 580;
+        case 10:
+            return 520;
+        case 0:
+            return 1;
+        default:
+            return 500;
     }
 }
 
@@ -267,8 +266,8 @@ void getEData(){
     //this should give rotations per second, however since it is being put into
     //an int, this should be 0. at speed 100, encoders should have .7 from this
     //math, which would show up as a 0.
-    int value1 = (DRV_TMR1_CounterValueGet()/297/12/0.01);
-    int value2 = (DRV_TMR2_CounterValueGet()/297/12/0.01);
+    int value1 = (DRV_TMR1_CounterValueGet()/297/12/0.01) * 100;
+    int value2 = (DRV_TMR2_CounterValueGet()/297/12/0.01) * 100;
     
     //This trys to pretty much just do an absolute value if its ever needed.
     if (value1 < 0){
@@ -309,7 +308,7 @@ void getEData(){
    // BaseType_t pxHigherPriorityTaskWoken=pdFALSE;
    // queueSend(messageQueue, EValues, &pxHigherPriorityTaskWoken);
 }
-
+void motorState(motorStates motorSt);
 
 #endif /* _APP_H */
 

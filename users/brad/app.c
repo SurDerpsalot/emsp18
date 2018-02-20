@@ -120,8 +120,15 @@ void APP_Initialize ( void )
     {
         dbgStopAll(QUEUE_INIT);
     }
-   DRV_OC0_PulseWidthSet(480);
-   DRV_OC1_PulseWidthSet(480);
+   //DRV_OC0_PulseWidthSet(480);
+   //DRV_OC1_PulseWidthSet(480);
+   state ms = ROVER_HOLD;
+   mStates.current_State = ms;
+   mStates.current_Direction_M1 = 0;
+   mStates.current_Direction_M2 = 0;
+   mStates.current_Speed_M1 = 0;
+   mStates.current_Speed_M2 = 0;
+   mStates.counter = 0;
 }
 
 
@@ -138,12 +145,14 @@ void APP_Tasks ( void )
     //799 is top
     //
     //460 is 10%
-   unsigned int motorSpeed = 50;
+    int motorSpeed = 100;
+    mStates.current_Speed_M1 = motorSpeed;
+    mStates.current_Speed_M2 = motorSpeed;
    struct Encoders Values;
    unsigned int rps1= 0;
    unsigned int rps2=0;
    while(1) {
-   
+       motorState(mStates);
      /*if(uxQueueMessagesWaiting( messageQueue )){
          queueReceive(messageQueue, &Values);
          rps1 = Values.encoder1;
@@ -153,43 +162,115 @@ void APP_Tasks ( void )
          dbgOutputLoc(15);
          dbgOutputLoc(rps2);
          dbgOutputLoc(5);
-     }*/
-       
-     if(i < 1500000){
+     }
+       */
+    if(i == 0){
+        mStates.current_State = ROVER_FORWARD;
         i++;
     }
-    else if(i < 3000000 && i > 1499999){
+    else if(i == 1500000){
         i++;
-        setMotor(motorSpeed,0,1);
-        setMotor(motorSpeed,0,0);
+        mStates.current_State = ROVER_BACKWARD;
     }
-    else if(i < 4500000 && i > 2999999){
+    else if(i == 3000000){
         i++;
-        setMotor((motorSpeed+20),1,1);
-        setMotor((motorSpeed+20),1,0);
+        mStates.current_State = ROVER_LEFT;
     }
-    else if(i < 6000000 && i > 4499999){
+    else if(i == 4500000 ){
         i++;
-        setMotor((motorSpeed),0,1);
-        setMotor((motorSpeed),1,0);
+        mStates.current_State = ROVER_RIGHT;
     }
-    else if(i < 7500000 && i > 5999999){
-        i++;
-        setMotor((motorSpeed+20),1,1);
-        setMotor((motorSpeed+20),0,0);
-    }
-    else{
+    else if(i > 6000000){
         motorSpeed = motorSpeed + 30;
         if(motorSpeed == 80){
            dbgOutputLoc(100);
-       }
-        if(motorSpeed == 110){
+        }
+        if(motorSpeed == 130 || motorSpeed == 110){
             motorSpeed = 50;
         }
-        i = 0;
+        i = -1;
     }
-     
+      i++; 
    }
+}
+
+void motorState(motorStates motorSt){
+    switch(motorSt.current_State){
+        case ROVER_FORWARD:
+            setMotor(motorSt.current_Speed_M1, 1);
+            setMotor(motorSt.current_Speed_M2, 0);
+            if(motorSt.counter == 1500){
+                motorSt.current_State = ROVER_HOLD;
+                motorSt.counter = 0;
+            }
+            else if (motorSt.counter == 0){
+                motorSt.counter++;
+                directionForward();
+            }
+            else{   
+                motorSt.counter++;
+            }
+            break;
+        case ROVER_BACKWARD:
+            setMotor(motorSt.current_Speed_M1, 1);
+            setMotor(motorSt.current_Speed_M2, 0);
+            if(motorSt.counter == 1500){
+                motorSt.current_State = ROVER_HOLD;
+                motorSt.counter = 0;
+            }
+            else if (motorSt.counter == 0){
+                motorSt.counter++;
+                directionBackward();
+            }
+            else{   
+                motorSt.counter++;
+            }
+            break;
+        case ROVER_RIGHT:
+            setMotor(motorSt.current_Speed_M1, 1);
+            setMotor(motorSt.current_Speed_M2, 0);
+            if(motorSt.counter == 1500){
+                motorSt.current_State = ROVER_HOLD;
+                motorSt.counter = 0;
+            }
+            else if (motorSt.counter == 0){
+                motorSt.counter++;
+                directionRight();
+            }
+            else{   
+                motorSt.counter++;
+            }
+            break;
+        case ROVER_LEFT:
+            setMotor(motorSt.current_Speed_M1, 1);
+            setMotor(motorSt.current_Speed_M2, 0);
+            if(motorSt.counter == 1500){
+                motorSt.current_State = ROVER_HOLD;
+                motorSt.counter = 0;
+            }
+            else if (motorSt.counter == 0){
+                motorSt.counter++;
+                directionLeft();
+            }
+            else{   
+                motorSt.counter++;
+            }
+            break;
+        case ROVER_HOLD:
+            setMotor(0,1);
+            setMotor(0,0);
+            directionForward();
+            motorSt.counter = 0;
+            break;
+        default:
+            setMotor(0,1);
+            setMotor(0,0);
+            directionForward();
+            motorSt.counter = 0;
+            break;
+    }
+                        
+    
 }
 
  
