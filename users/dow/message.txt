@@ -1,0 +1,37 @@
+-------------------------------------------------------------------------------
+************************** MESSAGE FORMAT INFORMATION *************************
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+LAYOUT
+-------------------------------------------------------------------------------
+|FIELD 1| |FIELD 2| |FIELD 3| |FIELD 4| |FIELD 5| |FIELD 6| |FIELD 7| |FIELD 8|
+| START | | TYPE  | |  SEQ  | | SOTex | | JSON  | | EOTex | | CHECK | |  END  |
+  0x8F      0x01      strlen    0x02      string    0x03      check      0xCF
+            0x02
+            0x04
+            0x08
+            0xFF
+
+-------------------------------------------------------------------------------
+TYPE INFORMATION
+-------------------------------------------------------------------------------
+0x01 - MSG POST => code passed along when the sender is sending new information
+0x02 - MSG REPL => code passed along when sender is requesting information
+0x04 - MSG ACKN => code passed along on successful handshake
+0x08 - MSG NACK => code passed along on message error
+0xFF - MSG FAIL => code passed along on catastrophic failure (exit)
+
+-------------------------------------------------------------------------------
+BACKGROUND
+-------------------------------------------------------------------------------
+This message format is based heavily off of the idea of a static (as opposed to
+dynamic) TCP/IP-esque protocol. Our messages will be of fixed length, with the 
+above fields, and a fixed length JSON payload. The start and end characters
+are non-ASCII characters and thus will help avoid the issue of an erroneous
+message start byte. The type is described above. The sequence byte is simply
+the strlen of the payload, and thus serves to verify the fidelity of the
+message as a whole. The SOTex and EOTex bytes represent the start of text and 
+end of text ASCII characters. The JSON is obviously the message that the
+message exists for. The check sum byte represents a check on the payload itself
+and is calculated using prime numbers and the JSON data.
